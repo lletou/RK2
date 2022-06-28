@@ -1,0 +1,44 @@
+name: CMake
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: submodules
+      run : |
+        git submodule update --init --recursive
+        sudo apt install lcov
+        
+    - name: Build
+      run: cmake -H. -B _build -DCOVERAGE=1 && cmake --build _build
+
+    - name: testing
+      working-directory: ${{github.workspace}}/_build
+      # Execute tests defined by the CMake configuration.  
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+        ./rk
+        lcov -c -t "tree" -o lcov.info -d .
+        lcov --remove lcov.info '/home/runner/work/RK2/RK2/third-party/gtest/*' -o lcov.info
+        lcov --remove lcov.info '/usr/include/*' -o lcov.info
+        
+    - name: coverals
+      uses: coverallsapp/github-action@master
+      with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./_build/lcov.info
+          coveralls-endpoint: https://coveralls.io
