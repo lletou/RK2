@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/third-party/gtest" "gtest")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/googletest" "gtest")
 add_library(tree STATIC tree.cpp)
 
 add_executable(rk ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.cpp)
